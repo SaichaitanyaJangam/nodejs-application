@@ -1,23 +1,24 @@
-# Using Node.js 16 as the base image
-FROM node:16
+# Use Node.js LTS
+FROM node:20-alpine
 
-# Setting up the working directory
+# Set working directory
 WORKDIR /app
 
-# Copying the package.json and package-lock.json files to the working directory
+# Copy package.json and package-lock.json first for caching
 COPY package*.json ./
 
-# Installation of npm dependency
+# Install dependencies
 RUN npm install
 
-# Copy the application code
+# Copy rest of the app
 COPY . .
 
-# Buildinf of the React app
-RUN npm run build
+# Optional build step only if package.json has "build" script
+# Use shell check to avoid failure if missing
+RUN if npm run | grep -q "build"; then npm run build; fi
 
-# Expose port 3000 to access app
+# Expose app port (adjust if different)
 EXPOSE 3000
 
-# Start your Node.js server
+# Default command
 CMD ["npm", "start"]
